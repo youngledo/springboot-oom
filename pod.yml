@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: springboot-oom
+  labels:
+    app: springboot-oom
+spec:
+  # 不重启
+  restartPolicy: Never
+  containers:
+    - name: springboot-oom
+      image: springboot-oom:latest
+      imagePullPolicy: Never
+      env:
+        - name: JAVA_OPTIONS
+          value: >
+            -XX:+UseG1GC
+            -XX:MaxDirectMemorySize=100m
+            -XX:NativeMemoryTracking=summary
+#            -XX:StartFlightRecording=name=app,filename=/tmp/jfr/app.jfr,disk=true,maxage=1m,settings=profile
+      resources:
+        limits:
+          cpu: "4"
+          memory: "512Mi"
+        requests:
+          cpu: "2"
+          memory: "128Mi"
+## 执行shell脚本
+#      command: ["/bin/bash", "-c"]
+#      args:
+#        - |
+#          # 启动 Java 应用
+#          java $JAVA_OPTIONS -jar /app/app.jar &
+#          pid=$!
+#          # 每 2 秒 flush JFR
+#          while kill -0 $pid 2>/dev/null; do
+#            jcmd $pid JFR.dump name=app filename=/tmp/jfr/app.jfr
+#            sleep 2
+#          done
+#          wait $pid
+## 挂载 JFR 数据
+#      volumeMounts:
+#        - name: jfr-data
+#          mountPath: /tmp/jfr
+#  volumes:
+#    - name: jfr-data
+#      hostPath:
+#        path: /Users/huangxiao/Downloads/jfr-data
+#        type: DirectoryOrCreate
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: springboot-service
+spec:
+  selector:
+    app: springboot-oom    # Service 会匹配 Pod 的 labels
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer

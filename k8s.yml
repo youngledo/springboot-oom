@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-oom
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springboot-oom
+  template:
+    metadata:
+      labels:
+        app: springboot-oom
+    spec:
+      containers:
+        - name: springboot-oom
+          image: springboot-oom:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: JAVA_OPTIONS
+              value: "-XX:+UseG1GC -Xmx300m -XX:MaxMetaspaceSize=50m -XX:MaxDirectMemorySize=112m -XX:NativeMemoryTracking=summary"
+      resources:
+        limits:
+          cpu: "4"
+          memory: "512Mi"
+        requests:
+          cpu: "2"
+          memory: "128Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: springboot-service
+spec:
+  selector:
+    app: springboot-oom
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer
