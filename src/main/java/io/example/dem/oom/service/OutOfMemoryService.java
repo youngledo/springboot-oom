@@ -42,8 +42,6 @@ public class OutOfMemoryService {
     }
 
     public void direct(boolean isClear) {
-//        bb = (DirectBuffer) ByteBuffer.allocateDirect(1024 * 1024 * 500);
-
         List<DirectBuffer> list = new ArrayList<>();
         int i = 0;
         while (true) {

@@ -16,8 +16,8 @@ spec:
           value: >
             -XX:+UseG1GC
             -XX:MaxDirectMemorySize=100m
-            -XX:NativeMemoryTracking=summary
-#            -XX:StartFlightRecording=name=app,filename=/tmp/jfr/app.jfr,disk=true,maxage=1m,settings=profile
+            -XX:NativeMemoryTracking=detail
+            -XX:StartFlightRecording=name=app,filename=/tmp/jfr/app.jfr,disk=true,maxage=1m,settings=profile
       resources:
         limits:
           cpu: "4"
@@ -29,24 +29,25 @@ spec:
 #      command: ["/bin/bash", "-c"]
 #      args:
 #        - |
-#          # 启动 Java 应用
 #          java $JAVA_OPTIONS -jar /app/app.jar &
-#          pid=$!
-#          # 每 2 秒 flush JFR
-#          while kill -0 $pid 2>/dev/null; do
-#            jcmd $pid JFR.dump name=app filename=/tmp/jfr/app.jfr
-#            sleep 2
-#          done
-#          wait $pid
-## 挂载 JFR 数据
-#      volumeMounts:
-#        - name: jfr-data
-#          mountPath: /tmp/jfr
-#  volumes:
-#    - name: jfr-data
-#      hostPath:
-#        path: /Users/huangxiao/Downloads/jfr-data
-#        type: DirectoryOrCreate
+#          JAVA_PID=$!
+#          jcmd $JAVA_PID VM.native_memory baseline >> /tmp/jfr/nmt.txt
+#          sleep 10
+#          while kill -0 $JAVA_PID 2>/dev/null; do
+#            jcmd $JAVA_PID VM.native_memory detail.diff scale=MB >> /tmp/jfr/nmt.txt
+#            echo "============================================================" >> /tmp/jfr/nmt.txt
+#            sleep 3
+#          done &
+#          wait $JAVA_PID
+# 挂载 JFR 数据
+      volumeMounts:
+        - name: jfr-data
+          mountPath: /tmp/jfr
+  volumes:
+    - name: jfr-data
+      hostPath:
+        path: 您的宿主机路径/jfr-data
+        type: DirectoryOrCreate
 
 ---
 apiVersion: v1
