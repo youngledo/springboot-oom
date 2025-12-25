@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: springboot-oom
+# \u5F3A\u5236\u5F00\u542F\u5F69\u8272\u65E5\u5FD7
+  output:
+    ansi:
+      enabled: ALWAYS
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
